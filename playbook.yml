@@ -1,0 +1,51 @@
+---
+- name: Deploy XYZ Blog Application
+  hosts: webserver
+  become: true
+
+  vars:
+    app_path: /var/www/xyz_blog
+    server_name: xyz.local
+
+  tasks:
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+        update_cache: yes
+
+    - name: Create application directory
+      file:
+        path: "{{ app_path }}"
+        state: directory
+        mode: '0755'
+
+    - name: Copy blog application files
+      copy:
+        src: app/
+        dest: "{{ app_path }}/"
+        mode: '0644'
+
+    - name: Deploy Nginx config from template
+      template:
+        src: templates/nginx.conf.j2
+        dest: /etc/nginx/sites-available/xyz_blog
+        mode: '0644'
+
+    - name: Enable site by linking to sites-enabled
+      file:
+        src: /etc/nginx/sites-available/xyz_blog
+        dest: /etc/nginx/sites-enabled/xyz_blog
+        state: link
+        force: true
+
+    - name: Remove default site if exists
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+
+    - name: Restart and enable Nginx
+      service:
+        name: nginx
+        state: restarted
+        enabled: true
