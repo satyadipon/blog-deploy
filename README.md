@@ -6,3 +6,14 @@ blog_deploy/
 - templates/nginx.conf.j2
 - app/index.html
 - app/style.css
+
+
+## How to deploy the website?
+- Run the ansible playbook
+```
+ansible-playbook -i inventory playbook.yml
+```
+- Open the browser and visit:
+```
+http://<remote-server-ip>/
+```
